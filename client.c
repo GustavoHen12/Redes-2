@@ -23,7 +23,7 @@
 #define ERROR -1
 #define SUCESS 1
 
-#define SEQUENCE_LIMIT 100
+#define SEQUENCE_LIMIT 10
 
 int initClient (int *sock, struct sockaddr_in *serverAdress) {
     logInfo("Iniciando o cliente...");

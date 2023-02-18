@@ -54,7 +54,7 @@ int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *
         exit(1);
     }
 
-    int sequence = atoi(msg);
+    int sequence = msg[0];
     printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
     
 }
