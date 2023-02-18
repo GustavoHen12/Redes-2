@@ -18,10 +18,12 @@
 
 #define SERVER_IP "192.168.1.117"  // Endereço IP do servidor
 #define SERVER_PORT 8005           // Porta do servidor
-#define MAX_MSG_SIZE 1024          // Tamanho máximo da mensagem
+#define MAX_MSG_SIZE 6             // Tamanho máximo da mensagem
 
 #define ERROR -1
 #define SUCESS 1
+
+#define SEQUENCE_LIMIT 100
 
 int initClient (int *sock, struct sockaddr_in *serverAdress) {
     logInfo("Iniciando o cliente...");
@@ -47,25 +49,35 @@ int initClient (int *sock, struct sockaddr_in *serverAdress) {
 
 int main() {
 
+    // Socket do cliente
     int clientSocket;
+    // Endereço do servido
     struct sockaddr_in serverAdress;
     
+    // Inicia cliente, associando a socket e configurando endereço do servidor
     int result = initClient(&clientSocket, &serverAdress);
     if(result == ERROR) {
         logError("Infelizmente não foi possível iniciar o cliente");
         exit(1);
     }
 
-    // Envia uma mensagem para o servidor
-    char msg[MAX_MSG_SIZE] = "Olá, servidor!";
-    if (sendto(clientSocket, msg, strlen(msg), 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) < 0) {
-        logError("Falha ao enviar a mensagem");
-        exit(1);
+    // Inicia canhão
+    // Envia sequencia de mensagens para servidor de 1 ao SEQUENCE_LIMIT
+    int i = 1;
+    while(i <= SEQUENCE_LIMIT) {
+        char msg[MAX_MSG_SIZE];
+        sprintf(msg, "%d", i);
+        if (sendto(clientSocket, msg, strlen(msg), 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) < 0) {
+            logError("Falha ao enviar a mensagem");
+            exit(1);
+        }
+
+        logInfo("Enviado: %s", msg);
+        i++;
     }
 
-    printf("Mensagem enviada: %s\n", msg);
-
     // Fecha o socket
+    logInfo("Processo finalizado, fechando socket");
     close(clientSocket);
 
     return 0;

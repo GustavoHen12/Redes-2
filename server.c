@@ -5,61 +5,85 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define SERVER_PORT 8888       // Porta do servidor
-#define MAX_MSG_SIZE 1024      // Tamanho máximo da mensagem
+#include "logUtil.h"
 
-int main() {
-    // Cria um socket UDP
-    int sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sock < 0) {
-        perror("Falha ao criar o socket");
-        exit(1);
+#define SERVER_PORT 8005       // Porta do servidor
+#define MAX_MSG_SIZE 6             // Tamanho máximo da mensagem
+
+#define ERROR -1
+#define SUCESS 1
+
+#define SEQUENCE_LIMIT 100
+
+int initServer (int *sock, struct sockaddr_in *serverAdress) {
+    logInfo("Iniciando o server...");
+
+    // Cria um socket UDP para o server
+    *sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (*sock < 0) {
+        logError("Falha ao criar o socket do server");
+        return ERROR;
     }
+    logInfo("Socket para server criado com sucesso");
 
-    // Configura o endereço do servidor
-    struct sockaddr_in server_addr;
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(SERVER_PORT);
-    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    // Configura o endereço do server
+    memset(serverAdress, 0, sizeof(*serverAdress));
+    (*serverAdress).sin_family = AF_INET;
+    (*serverAdress).sin_port = htons(SERVER_PORT);
+    (*serverAdress).sin_addr.s_addr = htonl(INADDR_ANY);
+    logInfo("Endereço do server configurado com sucesso");
 
     // Associa o socket ao endereço do servidor
-    if (bind(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        perror("Falha ao associar o socket ao endereço do servidor");
+    if (bind(*sock, (struct sockaddr*)serverAdress, sizeof(*serverAdress)) < 0) {
+        logError("Falha ao associar o socket ao endereço do servidor");
+        return ERROR;
+    }
+    logInfo("Socket associado ao endereço do servidor com sucesso");
+
+
+    logInfo("Server iniciado na porta %d.", SERVER_PORT);
+    return SUCESS;
+}
+
+int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen) {
+    char msg[MAX_MSG_SIZE];
+    int bytes_received;
+    bytes_received = recvfrom(socketServer, msg, MAX_MSG_SIZE, 0, (struct sockaddr*)clientAdress, clientAdressLen);
+    if (bytes_received < 0) {
+        perror("Falha ao receber a mensagem");
         exit(1);
     }
 
-    printf("Servidor UDP inicializado na porta %d\n", SERVER_PORT);
+    int sequence = atoi(msg);
+    printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
+    
+}
+
+int main() {
+    // Informações do cliente
+    struct sockaddr_in clientAdress;
+    socklen_t clientAdressLen = sizeof(clientAdress);
+
+    // Informações do server
+    int socketServer;
+    struct sockaddr_in serverAdress;
+
+    // Inicia server
+    int result = initServer(&socketServer, &serverAdress);
+    if(result == ERROR){
+        logError("Não foi possível iniciar o servidor");
+        exit(1);
+    }
 
     // Recebe e processa as mensagens dos clientes
     char msg[MAX_MSG_SIZE];
-    struct sockaddr_in client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
     int bytes_received;
     while (1) {
-        bytes_received = recvfrom(sock, msg, MAX_MSG_SIZE, 0, (struct sockaddr*)&client_addr, &client_addr_len);
-        if (bytes_received < 0) {
-            perror("Falha ao receber a mensagem");
-            exit(1);
-        }
-
-        printf("Mensagem recebida de %s:%d: %s\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), msg);
-
-        // Processa a mensagem recebida
-        // ...
-
-        // Envia uma resposta para o cliente
-        char reply[MAX_MSG_SIZE] = "Mensagem recebida com sucesso!";
-        if (sendto(sock, reply, strlen(reply), 0, (struct sockaddr*)&client_addr, client_addr_len) < 0) {
-            perror("Falha ao enviar a resposta");
-            exit(1);
-        }
-
-        printf("Resposta enviada para %s:%d: %s\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), reply);
+        int new = newSequence(socketServer, &clientAdress, &clientAdressLen);
     }
 
     // Fecha o socket
-    close(sock);
+    close(socketServer);
 
     return 0;
 }
