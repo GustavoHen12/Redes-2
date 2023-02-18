@@ -1,17 +1,16 @@
 CFLAGS = -Wall -g
- 
-objs = client.o escreva.o
- 
+CC=gcc
+
 # regra default (primeira regra)
-all: hello
+all: client server
  
 # regras de ligacao
-hello: $(objs)
- 
-# regras de compilação
-hello.o:   hello.c escreva.h
-escreva.o: escreva.c escreva.h
- 
+client: client.c
+	$(CC) -o $@ $^ $(DEBUG_FLAGS) -lstdc++fs
+
+server: server.c
+	$(CC) -o $@ $^ $(DEBUG_FLAGS) -lstdc++fs
+
 # remove arquivos temporários
 clean:
 	-rm -f $(objs) *~
