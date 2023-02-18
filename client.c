@@ -18,7 +18,7 @@
 
 #define SERVER_IP "192.168.1.117"  // Endereço IP do servidor
 #define SERVER_PORT 8005           // Porta do servidor
-#define MAX_MSG_SIZE 6             // Tamanho máximo da mensagem
+#define MAX_MSG_SIZE 1024          // Tamanho máximo da mensagem
 
 #define ERROR -1
 #define SUCESS 1
