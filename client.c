@@ -23,7 +23,7 @@
 #define ERROR -1
 #define SUCESS 1
 
-#define SEQUENCE_LIMIT 10
+#define SEQUENCE_LIMIT 100
 
 int initClient (int *sock, struct sockaddr_in *serverAdress) {
     logInfo("Iniciando o cliente...");
@@ -66,13 +66,16 @@ int main() {
     int i = 1;
     while(i <= SEQUENCE_LIMIT) {
         char msg[MAX_MSG_SIZE];
-        sprintf(msg, "%d", i);
+        // Estamos enviado um número, que será recebido e convertido no servidor
+        // entretanto, depois de alguns usos, considerando apenas números, ele pode pegar algum
+        // número que não deveria, portanto adicionamos um caracter qualquer para que ele pegue apenas o número
+        sprintf(msg, "%da", i);
         if (sendto(clientSocket, msg, strlen(msg), 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) < 0) {
             logError("Falha ao enviar a mensagem");
             exit(1);
         }
 
-        logInfo("Enviado: %s", msg);
+        logInfo("Enviado: %s, %d", msg, atoi(msg));
         i++;
     }
 
