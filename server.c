@@ -6,7 +6,6 @@
 #include <arpa/inet.h>
 
 #define SERVER_PORT 8888       // Porta do servidor
-#define SERVER_IP "8888"       // IP do servidor
 #define MAX_MSG_SIZE 1024      // Tamanho máximo da mensagem
 
 int main() {
@@ -22,7 +21,7 @@ int main() {
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(SERVER_PORT);
-    server_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     // Associa o socket ao endereço do servidor
     if (bind(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
