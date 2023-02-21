@@ -23,7 +23,56 @@
 #define ERROR -1
 #define SUCESS 1
 
-#define SEQUENCE_LIMIT 100
+// #define SEQUENCE_LIMIT 2147483647
+#define SEQUENCE_LIMIT 3000
+#define BATCH_SIZE 100
+
+int initClient (int *sock, struct sockaddr_in *serverAdress);
+
+int main() {
+
+    // Socket do cliente
+    int clientSocket;
+    // Endereço do servido
+    struct sockaddr_in serverAdress;
+    
+    // Inicia cliente, associando a socket e configurando endereço do servidor
+    int result = initClient(&clientSocket, &serverAdress);
+    if(result == ERROR) {
+        logError("Infelizmente não foi possível iniciar o cliente");
+        exit(1);
+    }
+
+    // Inicia canhão
+    // Envia sequencia de mensagens para servidor de 1 ao SEQUENCE_LIMIT
+    int i = 1;
+    while(i < SEQUENCE_LIMIT) {
+        char msg[MAX_MSG_SIZE];
+        // Estamos enviado um número, que será recebido e convertido no servidor
+        // entretanto, depois de alguns usos, considerando apenas números, ele pode pegar algum
+        // número que não deveria, portanto adicionamos um caracter qualquer para que ele pegue apenas o número
+        sprintf(msg, "%da", i);
+
+        // Envia mensagem criada
+        if (sendto(clientSocket, msg, strlen(msg), 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) < 0) {
+            logError("Falha ao enviar a mensagem");
+            exit(1);
+        }
+
+        // A cada BATCH_SIZE mensagens printa mensagem
+        if(i % BATCH_SIZE == 0){
+            logInfo("Enviado: %d mensagens", i);
+        }
+        i++;
+    }
+    logInfo("Enviado: %d mensagens", i);
+
+    // Fecha o socket
+    logInfo("Processo finalizado, fechando socket");
+    close(clientSocket);
+
+    return 0;
+}
 
 int initClient (int *sock, struct sockaddr_in *serverAdress) {
     logInfo("Iniciando o cliente...");
@@ -45,43 +94,4 @@ int initClient (int *sock, struct sockaddr_in *serverAdress) {
 
     logInfo("Cliente iniciado.");
     return SUCESS;
-}
-
-int main() {
-
-    // Socket do cliente
-    int clientSocket;
-    // Endereço do servido
-    struct sockaddr_in serverAdress;
-    
-    // Inicia cliente, associando a socket e configurando endereço do servidor
-    int result = initClient(&clientSocket, &serverAdress);
-    if(result == ERROR) {
-        logError("Infelizmente não foi possível iniciar o cliente");
-        exit(1);
-    }
-
-    // Inicia canhão
-    // Envia sequencia de mensagens para servidor de 1 ao SEQUENCE_LIMIT
-    int i = 1;
-    while(i <= SEQUENCE_LIMIT) {
-        char msg[MAX_MSG_SIZE];
-        // Estamos enviado um número, que será recebido e convertido no servidor
-        // entretanto, depois de alguns usos, considerando apenas números, ele pode pegar algum
-        // número que não deveria, portanto adicionamos um caracter qualquer para que ele pegue apenas o número
-        sprintf(msg, "%da", i);
-        if (sendto(clientSocket, msg, strlen(msg), 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) < 0) {
-            logError("Falha ao enviar a mensagem");
-            exit(1);
-        }
-
-        logInfo("Enviado: %s, %d", msg, atoi(msg));
-        i++;
-    }
-
-    // Fecha o socket
-    logInfo("Processo finalizado, fechando socket");
-    close(clientSocket);
-
-    return 0;
 }
