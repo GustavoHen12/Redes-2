@@ -13,12 +13,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdarg.h>
+#include <netdb.h>
 
 #include "logUtil.h"
-
-#define SERVER_IP "192.168.1.117"  // Endereço IP do servidor
-#define SERVER_PORT 8005           // Porta do servidor
-#define MAX_MSG_SIZE 1024          // Tamanho máximo da mensagem
 
 #define ERROR -1
 #define SUCESS 1
@@ -27,17 +24,29 @@
 #define SEQUENCE_LIMIT 3000
 #define BATCH_SIZE 100
 
-int initClient (int *sock, struct sockaddr_in *serverAdress);
+int initClient (int *sock, struct sockaddr_in *serverAdress, char *serverIp, int serverPort);
 
-int main() {
+int main(int argc, char *argv[]) {
 
     // Socket do cliente
     int clientSocket;
     // Endereço do servido
     struct sockaddr_in serverAdress;
     
+    // Informações sobre o server
+    int serverPort;
+    char *serverIp;
+
+    if(argc != 3) {
+      logError("Uso correto: <ip-servidor> <porta>");
+      exit(1);
+    }
+
+    serverPort = atoi(argv[2]);
+    serverIp = argv[1];
+
     // Inicia cliente, associando a socket e configurando endereço do servidor
-    int result = initClient(&clientSocket, &serverAdress);
+    int result = initClient(&clientSocket, &serverAdress, serverIp, serverPort);
     if(result == ERROR) {
         logError("Infelizmente não foi possível iniciar o cliente");
         exit(1);
@@ -47,14 +56,14 @@ int main() {
     // Envia sequencia de mensagens para servidor de 1 ao SEQUENCE_LIMIT
     int i = 1;
     while(i < SEQUENCE_LIMIT) {
-        char msg[MAX_MSG_SIZE];
+        char msg[BUFSIZ+1];
         // Estamos enviado um número, que será recebido e convertido no servidor
         // entretanto, depois de alguns usos, considerando apenas números, ele pode pegar algum
         // número que não deveria, portanto adicionamos um caracter qualquer para que ele pegue apenas o número
         sprintf(msg, "%da", i);
 
         // Envia mensagem criada
-        if (sendto(clientSocket, msg, strlen(msg), 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) < 0) {
+        if (sendto(clientSocket, msg, strlen(msg)+1, 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) != strlen(msg)+1) {
             logError("Falha ao enviar a mensagem");
             exit(1);
         }
@@ -69,12 +78,12 @@ int main() {
 
     // Fecha o socket
     logInfo("Processo finalizado, fechando socket");
-    close(clientSocket);
+    // close(clientSocket);
 
     return 0;
 }
 
-int initClient (int *sock, struct sockaddr_in *serverAdress) {
+int initClient (int *sock, struct sockaddr_in *serverAdress, char *serverIp, int serverPort) {
     logInfo("Iniciando o cliente...");
 
     // Cria um socket UDP para o cliente
@@ -88,8 +97,9 @@ int initClient (int *sock, struct sockaddr_in *serverAdress) {
     // Configura o endereço do server
     memset(serverAdress, 0, sizeof(*serverAdress));
     (*serverAdress).sin_family = AF_INET;
-    (*serverAdress).sin_addr.s_addr = inet_addr(SERVER_IP);
-    (*serverAdress).sin_port=htons(SERVER_PORT);
+    (*serverAdress).sin_addr.s_addr = inet_addr(serverIp);
+    (*serverAdress).sin_port=htons(serverPort);
+
     logInfo("Endereço do servidor configurado com sucesso");
 
     logInfo("Cliente iniciado.");

@@ -4,11 +4,13 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/types.h>
 
 #include "logUtil.h"
 
-#define SERVER_PORT 8005       // Porta do servidor
 #define MAX_MSG_SIZE 1024      // Tamanho máximo da mensagem
+#define MAXHOSTNAME 30
 
 #define ERROR -1
 #define SUCESS 1
@@ -25,17 +27,17 @@ typedef struct {
 } net_info_t;
 
 
-int initServer (int *sock, struct sockaddr_in *serverAdress);
+int initServer (int *sock, struct sockaddr_in *serverAdress, int serverPort);
 
 int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen);
 
 net_info_t *initNetInfo();
 
-void processMsg(int new, net_info_t *netInfo);
+int processMsg(int new, net_info_t *netInfo);
 
 void printNetworkInfo(net_info_t *netInfo);
 
-int main() {
+int main(int argc, char *argv[]) {
     // Informações do cliente
     struct sockaddr_in clientAdress;
     socklen_t clientAdressLen = sizeof(clientAdress);
@@ -51,15 +53,21 @@ int main() {
         exit(1);
     }
 
+    // Informações sobre o server
+    if(argc != 2) {
+      logError("Uso correto: <ip-servidor> <porta>");
+      exit(1);
+    }
+    int serverPort = atoi(argv[1]);
+    
     // Inicia server
-    int result = initServer(&socketServer, &serverAdress);
+    int result = initServer(&socketServer, &serverAdress, serverPort);
     if(result == ERROR){
         logError("Não foi possível iniciar o servidor");
         exit(1);
     }
 
     // Recebe e processa as mensagens dos clientes
-    char msg[MAX_MSG_SIZE];
     int bytes_received;
     while (1) {
         int new = newSequence(socketServer, &clientAdress, &clientAdressLen);
@@ -71,13 +79,15 @@ int main() {
         }
     }
 
-    // Fecha o socket
-    close(socketServer);
+    // TODO: Fecha o socket
+    // close(socketServer);
 
     return 0;
 }
 
-void processMsg(int new, net_info_t *netInfo) {
+int processMsg(int new, net_info_t *netInfo) {
+    netInfo->totalMsgReceived++;
+
     if(new > (netInfo->lastMsg + 1)){
         logWarning("Aparente perda de mensagens, chegou a mensagem %d quando a última foi %d", new, netInfo->lastMsg);
 
@@ -85,6 +95,7 @@ void processMsg(int new, net_info_t *netInfo) {
         // É realizado o cálculo pois pode ser que seja um intevalo de mensagens
         netInfo->lost += (new - netInfo->lastMsg);
         netInfo->lastMsg = new;
+        return ERROR;
     } else if (new < netInfo->lastMsg) {
         logWarning("Recebido mensagens fora de ordem, chegou a mensagem %d quando a última foi %d", new, netInfo->lastMsg);
 
@@ -92,11 +103,11 @@ void processMsg(int new, net_info_t *netInfo) {
         // Portanto uma das que estava perdida não está mais
         netInfo->lost--;
         netInfo->outOfOrder++;
-    } else {
-        netInfo->lastMsg = new;
-    }
-
-    netInfo->totalMsgReceived++;
+        return ERROR;
+    } 
+    
+    netInfo->lastMsg = new;
+    return SUCESS;
 }
 
 void printNetworkInfo(net_info_t *netInfo) {
@@ -116,8 +127,25 @@ net_info_t *initNetInfo() {
     return netInfo;
 }
 
-int initServer (int *sock, struct sockaddr_in *serverAdress) {
+int initServer (int *sock, struct sockaddr_in *serverAdress, int serverPort) {
     logInfo("Iniciando o server...");
+    struct hostent *hp;
+    char localhost [MAXHOSTNAME];
+    
+    gethostname(localhost, MAXHOSTNAME);
+    if ((hp = gethostbyname( localhost)) == NULL){
+		logError("Nao consegui meu proprio IP");
+		return ERROR;
+	}
+
+    // Configura o endereço do server
+    (*serverAdress).sin_port = htons(serverPort);
+	bcopy ((char *) hp->h_addr, (char *) &((*serverAdress).sin_addr), hp->h_length);
+    (*serverAdress).sin_family = hp->h_addrtype;	
+    // memset(serverAdress, 0, sizeof(*serverAdress));
+    // (*serverAdress).sin_family = AF_INET;
+    // (*serverAdress).sin_addr.s_addr = htonl(INADDR_ANY);
+    logInfo("Endereço do server configurado com sucesso");
 
     // Cria um socket UDP para o server
     *sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -127,36 +155,29 @@ int initServer (int *sock, struct sockaddr_in *serverAdress) {
     }
     logInfo("Socket para server criado com sucesso");
 
-    // Configura o endereço do server
-    memset(serverAdress, 0, sizeof(*serverAdress));
-    (*serverAdress).sin_family = AF_INET;
-    (*serverAdress).sin_port = htons(SERVER_PORT);
-    (*serverAdress).sin_addr.s_addr = htonl(INADDR_ANY);
-    logInfo("Endereço do server configurado com sucesso");
-
     // Associa o socket ao endereço do servidor
     if (bind(*sock, (struct sockaddr*)serverAdress, sizeof(*serverAdress)) < 0) {
-        logError("Falha ao associar o socket ao endereço do servidor");
+        logError("Falha ao fazer o bind");
         return ERROR;
     }
     logInfo("Socket associado ao endereço do servidor com sucesso");
 
 
-    logInfo("Server iniciado na porta %d.", SERVER_PORT);
+    logInfo("Server iniciado na porta %d.", serverPort);
     return SUCESS;
 }
 
 int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen) {
-    char msg[MAX_MSG_SIZE];
+    char msg[BUFSIZ];
     int bytes_received;
-    bytes_received = recvfrom(socketServer, msg, MAX_MSG_SIZE, 0, (struct sockaddr*)clientAdress, clientAdressLen);
+    bytes_received = recvfrom(socketServer, msg, BUFSIZ, 0, (struct sockaddr*)clientAdress, clientAdressLen);
     if (bytes_received < 0) {
         perror("Falha ao receber a mensagem");
         exit(1);
     }
 
     int sequence = atoi(msg);
-    // printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
+    printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
     
     return sequence;
 }
