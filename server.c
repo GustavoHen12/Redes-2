@@ -14,6 +14,107 @@
 #define SUCESS 1
 
 #define SEQUENCE_LIMIT 100
+#define BATCH_SIZE 100
+
+typedef struct {
+    int totalMsgReceived; // Total de mensagens recebida
+    int lastMsg; // Valor da ultima mensagem
+
+    int lost; // Total de mesagens perdidas
+    int outOfOrder; // Total de mensagens que chegaram fora de ordem
+} net_info_t;
+
+
+int initServer (int *sock, struct sockaddr_in *serverAdress);
+
+int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen);
+
+net_info_t *initNetInfo();
+
+void processMsg(int new, net_info_t *netInfo);
+
+void printNetworkInfo(net_info_t *netInfo);
+
+int main() {
+    // Informações do cliente
+    struct sockaddr_in clientAdress;
+    socklen_t clientAdressLen = sizeof(clientAdress);
+
+    // Informações do server
+    int socketServer;
+    struct sockaddr_in serverAdress;
+
+    // Informações da rede
+    net_info_t *netInfo = initNetInfo();
+    if(!netInfo){
+        logError("Não foi possível iniciar as informações da rede !");
+        exit(1);
+    }
+
+    // Inicia server
+    int result = initServer(&socketServer, &serverAdress);
+    if(result == ERROR){
+        logError("Não foi possível iniciar o servidor");
+        exit(1);
+    }
+
+    // Recebe e processa as mensagens dos clientes
+    char msg[MAX_MSG_SIZE];
+    int bytes_received;
+    while (1) {
+        int new = newSequence(socketServer, &clientAdress, &clientAdressLen);
+        
+        processMsg(new, netInfo);
+
+        if(netInfo->totalMsgReceived % BATCH_SIZE == 0){
+            printNetworkInfo(netInfo);
+        }
+    }
+
+    // Fecha o socket
+    close(socketServer);
+
+    return 0;
+}
+
+void processMsg(int new, net_info_t *netInfo) {
+    if(new > (netInfo->lastMsg + 1)){
+        logWarning("Aparente perda de mensagens, chegou a mensagem %d quando a última foi %d", new, netInfo->lastMsg);
+
+        // Se a mensagem não for a próxima, houve alguma perca
+        // É realizado o cálculo pois pode ser que seja um intevalo de mensagens
+        netInfo->lost += (new - netInfo->lastMsg);
+        netInfo->lastMsg = new;
+    } else if (new < netInfo->lastMsg) {
+        logWarning("Recebido mensagens fora de ordem, chegou a mensagem %d quando a última foi %d", new, netInfo->lastMsg);
+
+        // Se a mensagem for anterior a última siginifica que chegou atrasada
+        // Portanto uma das que estava perdida não está mais
+        netInfo->lost--;
+        netInfo->outOfOrder++;
+    } else {
+        netInfo->lastMsg = new;
+    }
+
+    netInfo->totalMsgReceived++;
+}
+
+void printNetworkInfo(net_info_t *netInfo) {
+    logInfo("Status:\n\tTotal de mensagens: %d [última = %d]\n\tTotal de perca: %d []\n\tTotal fora de ordem: %d []", netInfo->totalMsgReceived, netInfo->lastMsg, netInfo->lost, netInfo->outOfOrder);
+}
+
+net_info_t *initNetInfo() {
+    net_info_t *netInfo = malloc(sizeof(net_info_t));
+    if(!netInfo){
+        return NULL;
+    }
+
+    netInfo->lastMsg = 0;
+    netInfo->totalMsgReceived = 0;
+    netInfo->lost = 0;
+    netInfo->outOfOrder = 0;
+    return netInfo;
+}
 
 int initServer (int *sock, struct sockaddr_in *serverAdress) {
     logInfo("Iniciando o server...");
@@ -55,35 +156,7 @@ int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *
     }
 
     int sequence = atoi(msg);
-    printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
+    // printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
     
-}
-
-int main() {
-    // Informações do cliente
-    struct sockaddr_in clientAdress;
-    socklen_t clientAdressLen = sizeof(clientAdress);
-
-    // Informações do server
-    int socketServer;
-    struct sockaddr_in serverAdress;
-
-    // Inicia server
-    int result = initServer(&socketServer, &serverAdress);
-    if(result == ERROR){
-        logError("Não foi possível iniciar o servidor");
-        exit(1);
-    }
-
-    // Recebe e processa as mensagens dos clientes
-    char msg[MAX_MSG_SIZE];
-    int bytes_received;
-    while (1) {
-        int new = newSequence(socketServer, &clientAdress, &clientAdressLen);
-    }
-
-    // Fecha o socket
-    close(socketServer);
-
-    return 0;
+    return sequence;
 }

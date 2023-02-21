@@ -16,7 +16,7 @@ logUtil.o: logUtil.c logUtil.h
 
 # remove arquivos temporários
 clean:
-	-rm -f *.o *~
+	-rm -f *.o *.h.gch *~
  
 # remove tudo o que não for o código-fonte
 purge: clean
