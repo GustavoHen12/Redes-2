@@ -141,7 +141,9 @@ int initServer (int *sock, struct sockaddr_in *serverAdress, int serverPort) {
     // Configura o endereço do server
     (*serverAdress).sin_port = htons(serverPort);
 	bcopy ((char *) hp->h_addr, (char *) &((*serverAdress).sin_addr), hp->h_length);
-    (*serverAdress).sin_family = hp->h_addrtype;	
+    (*serverAdress).sin_family = hp->h_addrtype;
+
+    //TODO: Talvez remover
     // memset(serverAdress, 0, sizeof(*serverAdress));
     // (*serverAdress).sin_family = AF_INET;
     // (*serverAdress).sin_addr.s_addr = htonl(INADDR_ANY);
@@ -172,12 +174,12 @@ int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *
     int bytes_received;
     bytes_received = recvfrom(socketServer, msg, BUFSIZ, 0, (struct sockaddr*)clientAdress, clientAdressLen);
     if (bytes_received < 0) {
-        perror("Falha ao receber a mensagem");
+        logError("Falha ao receber a mensagem");
         exit(1);
     }
 
     int sequence = atoi(msg);
-    printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
+    //printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
     
     return sequence;
 }
