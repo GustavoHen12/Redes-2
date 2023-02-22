@@ -16,6 +16,10 @@
 
 #include "logUtil.h"
 
+/*================================================================================*/
+/*                                   CONSTANTES                                   */
+/*================================================================================*/
+
 #define MAX_MSG_SIZE 1024      // Tamanho máximo da mensagem
 #define MAXHOSTNAME 30
 
@@ -25,7 +29,9 @@
 #define SEQUENCE_LIMIT 100
 #define BATCH_SIZE 100
 
-
+/*================================================================================*/
+/*                               ESTRUTURA DE DADOS                               */
+/*================================================================================*/
 /*!
   \brief Estrutura de dados que armazena informacoes sobre as mensagens recebidas
   \param totalMsgReceived Armazena o numero total de mensagens recebidas 
@@ -36,26 +42,35 @@
 typedef struct {
     int totalMsgReceived;   // Total de mensagens recebida
     int lastMsg;            // Valor da ultima mensagem
-    //int totalMsgSent;       // Avaliar se faz sentido um campo que calcula o numero de msgs que deveria receber
+    //int totalMsgSent;     // Avaliar se faz sentido um campo que calcula o numero de msgs que deveria receber
                             // (totalMsgSent += (new - netInfo->lastMsg) para o caso de perda de msgs)
                             // Avaliar se ao final tem o mesmo valor que o client
 
-    int lost; // Total de mesagens perdidas
-    int outOfOrder; // Total de mensagens que chegaram fora de ordem
+    int lost;               // Total de mesagens perdidas
+    int outOfOrder;         // Total de mensagens que chegaram fora de ordem
 } net_info_t;
 
+/*================================================================================*/
+/*                               HEADERS DAS FUNCOES                              */
+/*================================================================================*/
 
 /*!
   \brief Configura o endereco do servidor, cria o socket e realiza o bind do socket com o endereco
   
-  \param *sock 
-  \param *serverAdress 
-  \param serverPort 
+  \param *sock Ponteiro que ira receber o descritor de arquivo do socket que sera aberto
+  \param *serverAdress Estrutura que descreve o endereco do socket
+  \param serverPort  Numero da porta passada como argumento para iniciar o programa
   
   \return SUCCESS em caso de sucesso ou ERROR em caso de erro e mostra o motivo na saida padrao de erro
 */
 int initServer (int *sock, struct sockaddr_in *serverAdress, int serverPort);
 
+/*!
+  \brief Aloca memoria para net_info_t e inicializa seus campos com 0
+
+  \return Ponteiro para a estrutura alocada em memoria
+*/
+net_info_t *initNetInfo();
 
 /*!
   \brief Recebe pacote do cliente
@@ -67,13 +82,6 @@ int initServer (int *sock, struct sockaddr_in *serverAdress, int serverPort);
   \return Numero de sequencia do pacote recebido
 */
 int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen);
-
-/*!
-  \brief Aloca memoria para net_info_t e inicializa seus campos com 0
-
-  \return Ponteiro para a estrutura alocada em memoria
-*/
-net_info_t *initNetInfo();
 
 /*!
   \brief Processa o numero de sequencia do pacote recebido do cliente. Define se houve perda de 
@@ -93,6 +101,10 @@ int processMsg(int new, net_info_t *netInfo);
   \param *netInfo Ponteiro para estrutura de dados que armazena informacoes sobre os pacotes recebidos
 */
 void printNetworkInfo(net_info_t *netInfo);
+
+/*================================================================================*/
+/*                                      MAIN                                      */
+/*================================================================================*/
 
 int main(int argc, char *argv[]) {
 
@@ -148,57 +160,10 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-int processMsg(int new, net_info_t *netInfo) {
-    netInfo->totalMsgReceived++;
-    //netInfo->totalMsgSent++;
+/*================================================================================*/
+/*                            IMPLEMENTACAO DAS FUNCOES                           */
+/*================================================================================*/
 
-    if(new > (netInfo->lastMsg + 1)){
-
-        // Log modificado - Testar para definir se esta melhor ou nao
-        logWarning("Aparente perda de %d mensagens: última menagem recebida %d - mensagem atual %d", (new - netInfo->lastMsg), netInfo->lastMsg, new);
-
-        // Se a mensagem não for a próxima, houve perda
-        // É realizado o cálculo pois pode ser que seja um intevalo de mensagens
-        netInfo->lost += (new - netInfo->lastMsg);
-        //netInfo->totalMsgSent += (new - netInfo->lastMsg) - 1; //-1 por conta do netInfo->totalMsgSent++ acima
-        netInfo->lastMsg = new;
-        return ERROR;
-    } else if (new < netInfo->lastMsg) {
-        logWarning("Mensagen recebida fora de ordem: última menagem recebida %d - mensagem atual %d", netInfo->lastMsg, new);
-
-        // Se a mensagem for anterior a última siginifica que chegou atrasada
-        // Portanto uma das que estava perdida não está mais
-        netInfo->lost--;
-        netInfo->outOfOrder++;
-        //netInfo->totalMsgSent--; //-1 porque ja tinha sido contada na aparente perda de mensagens
-        return ERROR;
-    } 
-    
-    netInfo->lastMsg = new;
-    return SUCCESS;
-}
-
-void printNetworkInfo(net_info_t *netInfo) {
-    double loss_rate, outOfOrder_rate;
-    // loss_rate = 100.0*(double)netInfo->lost/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
-    // outOfOrder_rate = 100.0*(double)netInfo->outOfOrder/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
-    
-    logInfo("Status:\n\tTotal de pacotes recebidos: %d [última = %d]\n\tTotal de perda de pacotes: %d []\n\tTotal de pacotes fora de ordem: %d []", netInfo->totalMsgReceived, netInfo->lastMsg, netInfo->lost, netInfo->outOfOrder);
-    logInfo("\tTaxa de perda de pacotes: %lf%%\n\tTaxa de pacotes recebidos fora de ordem: %lf%%", loss_rate, outOfOrder_rate);
-}
-
-net_info_t *initNetInfo() {
-    net_info_t *netInfo = malloc(sizeof(net_info_t));
-    if(!netInfo){
-        return NULL;
-    }
-
-    netInfo->lastMsg = 0;
-    netInfo->totalMsgReceived = 0;
-    netInfo->lost = 0;
-    netInfo->outOfOrder = 0;
-    return netInfo;
-}
 
 int initServer(int *sock, struct sockaddr_in *serverAdress, int serverPort) {
     logInfo("Iniciando o server...");
@@ -242,6 +207,19 @@ int initServer(int *sock, struct sockaddr_in *serverAdress, int serverPort) {
     return SUCCESS;
 }
 
+net_info_t *initNetInfo() {
+    net_info_t *netInfo = malloc(sizeof(net_info_t));
+    if(!netInfo){
+        return NULL;
+    }
+
+    netInfo->lastMsg = 0;
+    netInfo->totalMsgReceived = 0;
+    netInfo->lost = 0;
+    netInfo->outOfOrder = 0;
+    return netInfo;
+}
+
 int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen) {
     char msg[BUFSIZ];
     int bytes_received;
@@ -260,4 +238,43 @@ int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *
     //printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
     
     return sequence;
+}
+
+int processMsg(int new, net_info_t *netInfo) {
+    netInfo->totalMsgReceived++;
+    //netInfo->totalMsgSent++;
+
+    if(new > (netInfo->lastMsg + 1)){
+
+        // Log modificado - Testar para definir se esta melhor ou nao
+        logWarning("Aparente perda de %d mensagens: última menagem recebida %d - mensagem atual %d", (new - netInfo->lastMsg), netInfo->lastMsg, new);
+
+        // Se a mensagem não for a próxima, houve perda
+        // É realizado o cálculo pois pode ser que seja um intevalo de mensagens
+        netInfo->lost += (new - netInfo->lastMsg);
+        //netInfo->totalMsgSent += (new - netInfo->lastMsg) - 1; //-1 por conta do netInfo->totalMsgSent++ acima
+        netInfo->lastMsg = new;
+        return ERROR;
+    } else if (new < netInfo->lastMsg) {
+        logWarning("Mensagen recebida fora de ordem: última menagem recebida %d - mensagem atual %d", netInfo->lastMsg, new);
+
+        // Se a mensagem for anterior a última siginifica que chegou atrasada
+        // Portanto uma das que estava perdida não está mais
+        netInfo->lost--;
+        netInfo->outOfOrder++;
+        //netInfo->totalMsgSent--; //-1 porque ja tinha sido contada na aparente perda de mensagens
+        return ERROR;
+    } 
+    
+    netInfo->lastMsg = new;
+    return SUCCESS;
+}
+
+void printNetworkInfo(net_info_t *netInfo) {
+    double loss_rate, outOfOrder_rate;
+    // loss_rate = 100.0*(double)netInfo->lost/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
+    // outOfOrder_rate = 100.0*(double)netInfo->outOfOrder/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
+    
+    logInfo("Status:\n\tTotal de pacotes recebidos: %d [última = %d]\n\tTotal de perda de pacotes: %d []\n\tTotal de pacotes fora de ordem: %d []", netInfo->totalMsgReceived, netInfo->lastMsg, netInfo->lost, netInfo->outOfOrder);
+    logInfo("\tTaxa de perda de pacotes: %lf%%\n\tTaxa de pacotes recebidos fora de ordem: %lf%%", loss_rate, outOfOrder_rate);
 }

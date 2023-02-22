@@ -17,6 +17,10 @@
 
 #include "logUtil.h"
 
+/*================================================================================*/
+/*                                   CONSTANTES                                   */
+/*================================================================================*/
+
 #define ERROR -1
 #define SUCESS 1
 
@@ -24,10 +28,14 @@
 #define SEQUENCE_LIMIT 3000
 #define BATCH_SIZE 100
 
+/*================================================================================*/
+/*                                HEADER DA FUNCAO                                */
+/*================================================================================*/
+
 /*!
   \brief Cria o socket para o cliente e configura endereco do server para enviar pacotes
   
-  \param *sock 
+  \param *sock Ponteiro que ira receber o descritor de arquivo do socket que sera aberto
   \param *serverAdress 
   \param *serverIp
   \param serverPort 
@@ -35,6 +43,10 @@
   \return SUCCESS em caso de sucesso ou ERROR em caso de erro e mostra o motivo na saida padrao de erro
 */
 int initClient (int *sock, struct sockaddr_in *serverAdress, char *serverIp, int serverPort);
+
+/*================================================================================*/
+/*                                      MAIN                                      */
+/*================================================================================*/
 
 int main(int argc, char *argv[]) {
 
@@ -98,6 +110,10 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+/*================================================================================*/
+/*                             IMPLEMENTACAO DA FUNCAO                            */
+/*================================================================================*/
 
 int initClient (int *sock, struct sockaddr_in *serverAdress, char *serverIp, int serverPort) {
     logInfo("Iniciando o cliente...");
