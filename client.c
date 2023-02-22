@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
         }
         i++;
     }
-    logInfo("Pacotes enviados: %d", i);
+    logInfo("Pacotes enviados: %d", msgLimit);
 
     // Fecha o socket
     logInfo("Processo finalizado, fechando socket");
