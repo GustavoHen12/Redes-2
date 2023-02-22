@@ -13,7 +13,9 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/types.h>
-#include <sys/poll.h>
+#include <poll.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 #include "logUtil.h"
 
@@ -27,9 +29,9 @@
 #define SUCCESS 1
 
 #define CLIENT 1
-#define TIMEOUT 8000
+#define TIMEOUT 1000
 
-#define BATCH_SIZE 100
+#define BATCH_SIZE 100 // Se estiver no modo debug print a cada batch o status da rede
 
 /*================================================================================*/
 /*                               ESTRUTURA DE DADOS                               */
@@ -72,17 +74,6 @@ int initServer (int *sock, struct sockaddr_in *serverAdress, int serverPort);
   \return Ponteiro para a estrutura alocada em memoria
 */
 net_info_t *initNetInfo();
-
-/*!
-  \brief Recebe pacote do cliente
-  
-  \param socketServer
-  \param *clientAdress
-  \param *clientAdressLen
-  
-  \return Numero de sequencia do pacote recebido
-*/
-int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen);
 
 /*!
   \brief Processa o numero de sequencia do pacote recebido do cliente. Define se houve perda de 
@@ -183,18 +174,15 @@ int main(int argc, char *argv[]) {
                 int newSequence = msg[0];
                 received++;                
 
-                logInfo("Recebido pacote # %d. / %d\n", newSequence, received);    
-
-                // processMsg(newSequence, netInfo);
-                // if(netInfo->totalMsgReceived % BATCH_SIZE == 0){
-                //     printNetworkInfo(netInfo);
-                // }
+                processMsg(newSequence, netInfo);
+                #if DEBUG
+                if(netInfo->totalMsgReceived % BATCH_SIZE == 0){
+                    printNetworkInfo(netInfo);
+                }
+                #endif
             }
         }
     }
-
-    // TODO: Fecha o socket
-    // close(socketServer);
 
     return 0;
 }
@@ -255,20 +243,14 @@ net_info_t *initNetInfo() {
     return netInfo;
 }
 
-// int msg[BUFSIZ];
-// int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen) {
-    
-// }
-
 int processMsg(int new, net_info_t *netInfo) {
     netInfo->totalMsgReceived++;
     netInfo->totalMsgSent ++;
 
     if(new > (netInfo->lastMsg + 1)){
-
-        // Log modificado - Testar para definir se esta melhor ou nao
+        #if DEBUG
         logWarning("Aparente perda de %d mensagens: última menagem recebida %d - mensagem atual %d", (new - netInfo->lastMsg), netInfo->lastMsg, new);
-
+        #endif
         // Se a mensagem não for a próxima, houve perda
         // É realizado o cálculo pois pode ser que seja um intevalo de mensagens
         netInfo->lost += (new - netInfo->lastMsg);
@@ -276,7 +258,9 @@ int processMsg(int new, net_info_t *netInfo) {
         netInfo->lastMsg = new;
         return ERROR;
     } else if (new < netInfo->lastMsg) {
+        #if DEBUG
         logWarning("Mensagen recebida fora de ordem: última menagem recebida %d - mensagem atual %d", netInfo->lastMsg, new);
+        #endif
 
         // Se a mensagem for anterior a última siginifica que chegou atrasada
         // Portanto uma das que estava perdida não está mais
