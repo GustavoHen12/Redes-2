@@ -1,7 +1,7 @@
 /**
  * @file logUtil.c
  * @author Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa (cph19)
- * @brief 
+ * @brief Biblioteca auxiliar para formatacao de logs do sistema
  * 
  */
 

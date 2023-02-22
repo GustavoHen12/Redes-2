@@ -2,7 +2,7 @@
  * @file server.c
  * @author Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa (cph19)
  * @brief Servidor do canhão UDP. Recebe diversas mensagens em sequência do cliente para calcular
- * a taxa de erro 
+ * a taxa de erro
  * 
  */
 #include <stdio.h>
@@ -43,6 +43,7 @@ typedef struct {
     int lost; // Total de mesagens perdidas
     int outOfOrder; // Total de mensagens que chegaram fora de ordem
 } net_info_t;
+
 
 /*!
   \brief Configura o endereco do servidor, cria o socket e realiza o bind do socket com o endereco
@@ -244,6 +245,8 @@ int initServer(int *sock, struct sockaddr_in *serverAdress, int serverPort) {
 int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen) {
     char msg[BUFSIZ];
     int bytes_received;
+
+    // Recebe pacote e testa se recebeu corretamente
     bytes_received = recvfrom(socketServer, msg, BUFSIZ, 0, (struct sockaddr*)clientAdress, clientAdressLen);
     if (bytes_received < 0) {
         logError("Falha ao receber a mensagem");

@@ -24,6 +24,16 @@
 #define SEQUENCE_LIMIT 3000
 #define BATCH_SIZE 100
 
+/*!
+  \brief Cria o socket para o cliente e configura endereco do server para enviar pacotes
+  
+  \param *sock 
+  \param *serverAdress 
+  \param *serverIp
+  \param serverPort 
+  
+  \return SUCCESS em caso de sucesso ou ERROR em caso de erro e mostra o motivo na saida padrao de erro
+*/
 int initClient (int *sock, struct sockaddr_in *serverAdress, char *serverIp, int serverPort);
 
 int main(int argc, char *argv[]) {
