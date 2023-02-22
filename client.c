@@ -84,15 +84,14 @@ int main(int argc, char *argv[]) {
     // Envia sequencia de mensagens para servidor de 1 ao SEQUENCE_LIMIT
     logInfo("Iniciando envio de pacotes...");
     int i = 1;
+    int msg[1];
+
     while(i <= msgLimit) {
-        char msg[BUFSIZ+1];
-        // Estamos enviado um número, que será recebido e convertido no servidor
-        // entretanto, depois de alguns usos, considerando apenas números, ele pode pegar algum                 ->NAO ENTENDI MMUITO BEM
-        // número que não deveria, portanto adicionamos um caracter qualquer para que ele pegue apenas o número
-        sprintf(msg, "%da", i);
+        // Cria mensagem
+        msg[0] = i;
 
         // Envia mensagem criada
-        if (sendto(clientSocket, msg, strlen(msg)+1, 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) != strlen(msg)+1) {
+        if (sendto(clientSocket, msg, sizeof(msg), 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) != strlen(msg)+1) {
             logError("Falha ao enviar a mensagem");
             exit(1);
         }

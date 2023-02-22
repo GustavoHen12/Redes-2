@@ -262,7 +262,7 @@ int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *
     logInfo("Recebido pacote # %d.\n", sequence);
 
     //int sequence = atoi(msg);
-    //printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
+    printf("Mensagem recebida de %s:%d: %d\n", inet_ntoa(clientAdress->sin_addr), ntohs(clientAdress->sin_port), sequence);
     
     return sequence;
 }
