@@ -279,8 +279,8 @@ int processMsg(int new, net_info_t *netInfo) {
 
 void printNetworkInfo(net_info_t *netInfo) {
     double loss_rate, outOfOrder_rate;
-    loss_rate = 100.0*(double)netInfo->lost/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
-    outOfOrder_rate = 100.0*(double)netInfo->outOfOrder/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
+    loss_rate = (double)100.0*((double)netInfo->lost)/((double)netInfo->totalMsgReceived); // Ou netInfo->totalMsgSent?
+    outOfOrder_rate = (double)100.0*(double)netInfo->outOfOrder/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
 
     logInfo("Status:\n\tTotal de pacotes recebidos: %d / %d [última = %d]\n\tTotal de perda de pacotes: %d\n\tTotal de pacotes fora de ordem: %d\n\tTaxa de perda de pacotes: %lf%%\n\tTaxa de pacotes recebidos fora de ordem: %lf%%", netInfo->totalMsgReceived, netInfo->totalMsgSent, netInfo->lastMsg, netInfo->lost, netInfo->outOfOrder, loss_rate, outOfOrder_rate);
 }
