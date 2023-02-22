@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     // Envia sequencia de mensagens para servidor de 1 ao SEQUENCE_LIMIT
     logInfo("Iniciando envio de pacotes...");
     int i = 1;
-    while(i < msgLimit) {
+    while(i <= msgLimit) {
         char msg[BUFSIZ+1];
         // Estamos enviado um número, que será recebido e convertido no servidor
         // entretanto, depois de alguns usos, considerando apenas números, ele pode pegar algum                 ->NAO ENTENDI MMUITO BEM
