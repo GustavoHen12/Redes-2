@@ -101,10 +101,10 @@ void printNetworkInfo(net_info_t *netInfo);
 
 int main(int argc, char *argv[]) {
 
-    fprintf(stdout, "==================================================================================");
-    fprintf(stdout, "Inicio da execucao: programa que inicializa o servidor para execucao do canhao UDP");
-    fprintf(stdout, "Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa (cph19)- Redes II");
-    fprintf(stdout, "==================================================================================");
+    fprintf(stdout, "==================================================================================\n");
+    fprintf(stdout, "Inicio da execucao: programa que inicializa o servidor para execucao do canhao UDP\n");
+    fprintf(stdout, "Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa (cph19)- Redes II\n");
+    fprintf(stdout, "==================================================================================\n");
 
     // Informações do cliente
     struct sockaddr_in clientAdress;
