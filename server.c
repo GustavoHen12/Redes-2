@@ -22,6 +22,7 @@
 /*================================================================================*/
 /*                                   CONSTANTES                                   */
 /*================================================================================*/
+#define SERVER_PORT_DEFAULT 8005
 
 #define MAXHOSTNAME 30
 
@@ -120,12 +121,14 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    int serverPort = SERVER_PORT_DEFAULT;
+    
     // Informações sobre o server
-    if(argc != 2) {
-      logError("Uso correto: <ip-servidor> <porta>");
-      exit(1);
+    if(argc > 2) {
+        int serverPort = atoi(argv[1]);
+    } else {
+        logInfo("Utilizando porta default %d", SERVER_PORT_DEFAULT);
     }
-    int serverPort = atoi(argv[1]);
     
     // Inicia server
     int result = initServer(&socketServer, &serverAdress, serverPort);
