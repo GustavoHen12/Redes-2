@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/types.h>
+#include <sys/poll.h>
 
 #include "logUtil.h"
 
@@ -20,13 +21,14 @@
 /*                                   CONSTANTES                                   */
 /*================================================================================*/
 
-#define MAX_MSG_SIZE 1024      // Tamanho máximo da mensagem
 #define MAXHOSTNAME 30
 
 #define ERROR -1
 #define SUCCESS 1
 
-#define SEQUENCE_LIMIT 100
+#define CLIENT 1
+#define TIMEOUT 8000
+
 #define BATCH_SIZE 100
 
 /*================================================================================*/
@@ -142,15 +144,39 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    // Poll é utilizado para fazer o timeout
+    struct pollfd pollsd;
+    pollsd.fd = socketServer;
+    pollsd.events = POLLIN;
+    int pollResult;
+
     // Recebe e processa as mensagens dos clientes
     int bytes_received;
     while (1) {
-        int new = newSequence(socketServer, &clientAdress, &clientAdressLen);
-        
-        processMsg(new, netInfo);
+        pollResult = poll(&pollsd, CLIENT, TIMEOUT);
+        if(pollResult == ERROR) {
+            logError("Erro no polling");
+            exit(1);
+        } else if (pollResult == 0) {
+            logInfo("Timeout, reiniciando...");
+            if(netInfo->totalMsgReceived > 0){
+                logInfo("Status final:");
+                printNetworkInfo(netInfo);
+            }
+            netInfo->lastMsg = 0;
+            netInfo->totalMsgReceived = 0;
+            netInfo->lost = 0;
+            netInfo->outOfOrder = 0;
+        } else {
+            if(pollsd.revents & POLLIN) {
+                int new = newSequence(socketServer, &clientAdress, &clientAdressLen);
+                
+                processMsg(new, netInfo);
 
-        if(netInfo->totalMsgReceived % BATCH_SIZE == 0){
-            printNetworkInfo(netInfo);
+                if(netInfo->totalMsgReceived % BATCH_SIZE == 0){
+                    printNetworkInfo(netInfo);
+                }
+            }
         }
     }
 
