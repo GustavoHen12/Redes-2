@@ -242,8 +242,8 @@ net_info_t *initNetInfo() {
     return netInfo;
 }
 
+int msg[BUFSIZ];
 int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen) {
-    char msg[BUFSIZ];
     int bytes_received;
 
     // Recebe pacote e testa se recebeu corretamente
@@ -252,8 +252,8 @@ int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *
         logError("Falha ao receber a mensagem");
         exit(1);
     }
-    int sequence;
-    sscanf(msg,"%d",&sequence);
+    int sequence = msg[0];
+    // sscanf(msg,"%d",&sequence);
     logInfo("Recebido pacote # %d.\n", sequence);
 
     //int sequence = atoi(msg);
