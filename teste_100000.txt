@@ -1,0 +1,113 @@
+==================================================================================
+Inicio da execucao: programa que inicializa o servidor para execucao do canhao UDP
+Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa (cph19)- Redes II
+==================================================================================
+[INFO]: Utilizando porta default 8005
+[INFO]: Iniciando o server...
+[INFO]: Endereço do server configurado com sucesso
+[INFO]: Socket para server criado com sucesso
+[INFO]: Socket associado ao endereço do servidor com sucesso
+[INFO]: Server iniciado na porta 8005.
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Status final:
+[INFO]: Status:
+	Total de pacotes recebidos: 56681 / 99989 [última = 99989]
+	Total de perda de pacotes: 43308
+	Total de pacotes fora de ordem: 0
+	Taxa de perda de pacotes: 43.312764%
+	Taxa de pacotes recebidos fora de ordem: 0.000000%
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Status final:
+[INFO]: Status:
+	Total de pacotes recebidos: 98447 / 100000 [última = 100000]
+	Total de perda de pacotes: 1553
+	Total de pacotes fora de ordem: 0
+	Taxa de perda de pacotes: 1.553000%
+	Taxa de pacotes recebidos fora de ordem: 0.000000%
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Status final:
+[INFO]: Status:
+	Total de pacotes recebidos: 100000 / 100000 [última = 100000]
+	Total de perda de pacotes: 0
+	Total de pacotes fora de ordem: 0
+	Taxa de perda de pacotes: 0.000000%
+	Taxa de pacotes recebidos fora de ordem: 0.000000%
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Status final:
+[INFO]: Status:
+	Total de pacotes recebidos: 94369 / 100000 [última = 100000]
+	Total de perda de pacotes: 5631
+	Total de pacotes fora de ordem: 0
+	Taxa de perda de pacotes: 5.631000%
+	Taxa de pacotes recebidos fora de ordem: 0.000000%
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Status final:
+[INFO]: Status:
+	Total de pacotes recebidos: 99886 / 100000 [última = 100000]
+	Total de perda de pacotes: 114
+	Total de pacotes fora de ordem: 0
+	Taxa de perda de pacotes: 0.114000%
+	Taxa de pacotes recebidos fora de ordem: 0.000000%
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Status final:
+[INFO]: Status:
+	Total de pacotes recebidos: 100000 / 100000 [última = 100000]
+	Total de perda de pacotes: 0
+	Total de pacotes fora de ordem: 0
+	Taxa de perda de pacotes: 0.000000%
+	Taxa de pacotes recebidos fora de ordem: 0.000000%
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Status final:
+[INFO]: Status:
+	Total de pacotes recebidos: 100000 / 100000 [última = 100000]
+	Total de perda de pacotes: 0
+	Total de pacotes fora de ordem: 0
+	Taxa de perda de pacotes: 0.000000%
+	Taxa de pacotes recebidos fora de ordem: 0.000000%
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Status final:
+[INFO]: Status:
+	Total de pacotes recebidos: 100000 / 100000 [última = 100000]
+	Total de perda de pacotes: 0
+	Total de pacotes fora de ordem: 0
+	Taxa de perda de pacotes: 0.000000%
+	Taxa de pacotes recebidos fora de ordem: 0.000000%
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Status final:
+[INFO]: Status:
+	Total de pacotes recebidos: 100000 / 100000 [última = 100000]
+	Total de perda de pacotes: 0
+	Total de pacotes fora de ordem: 0
+	Taxa de perda de pacotes: 0.000000%
+	Taxa de pacotes recebidos fora de ordem: 0.000000%
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Status final:
+[INFO]: Status:
+	Total de pacotes recebidos: 100000 / 100000 [última = 100000]
+	Total de perda de pacotes: 0
+	Total de pacotes fora de ordem: 0
+	Taxa de perda de pacotes: 0.000000%
+	Taxa de pacotes recebidos fora de ordem: 0.000000%
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
+[INFO]: Timeout, reiniciando...
