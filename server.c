@@ -206,15 +206,10 @@ int initServer(int *sock, struct sockaddr_in *serverAdress, int serverPort) {
     (*serverAdress).sin_port = htons(serverPort);
 	bcopy ((char *) hp->h_addr, (char *) &((*serverAdress).sin_addr), hp->h_length);
     (*serverAdress).sin_family = hp->h_addrtype;
-
-    //TODO: Talvez remover
-    // memset(serverAdress, 0, sizeof(*serverAdress));
-    // (*serverAdress).sin_family = AF_INET;
-    // (*serverAdress).sin_addr.s_addr = htonl(INADDR_ANY);
     logInfo("Endereço do server configurado com sucesso");
 
     // Cria um socket UDP para o server
-    *sock = socket(AF_INET, SOCK_DGRAM, 0);
+    *sock = socket(hp->h_addrtype, SOCK_DGRAM, 0);
     if (*sock < 0) {
         logError("Falha ao criar o socket do server");
         return ERROR;
