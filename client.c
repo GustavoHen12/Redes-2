@@ -64,13 +64,14 @@ int main(int argc, char *argv[]) {
     int serverPort;
     char *serverIp;
 
-    if(argc != 3) {
-      logError("Uso correto: <ip-servidor> <porta>");
+    if(argc != 4) {
+      logError("Uso correto: <ip-servidor> <porta> <quantidade-mensagens>");
       exit(1);
     }
 
     serverPort = atoi(argv[2]);
     serverIp = argv[1];
+    int msgLimit = atoi(argv[3]);
 
     // Inicia cliente, associando a socket e configurando endereço do servidor
     int result = initClient(&clientSocket, &serverAdress, serverIp, serverPort);
@@ -83,7 +84,7 @@ int main(int argc, char *argv[]) {
     // Envia sequencia de mensagens para servidor de 1 ao SEQUENCE_LIMIT
     logInfo("Iniciando envio de pacotes...");
     int i = 1;
-    while(i < SEQUENCE_LIMIT) {
+    while(i < msgLimit) {
         char msg[BUFSIZ+1];
         // Estamos enviado um número, que será recebido e convertido no servidor
         // entretanto, depois de alguns usos, considerando apenas números, ele pode pegar algum                 ->NAO ENTENDI MMUITO BEM
