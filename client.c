@@ -36,9 +36,9 @@
   \brief Cria o socket para o cliente e configura endereco do server para enviar pacotes
   
   \param *sock Ponteiro que ira receber o descritor de arquivo do socket que sera aberto
-  \param *serverAdress 
-  \param *serverIp
-  \param serverPort 
+  \param *serverAdress Estrutura interna que descreve o endereço do servidor
+  \param *serverIp Endereço ip do servidor
+  \param serverPort Porta do servidor que sera conectada
   
   \return SUCCESS em caso de sucesso ou ERROR em caso de erro e mostra o motivo na saida padrao de erro
 */
@@ -96,10 +96,9 @@ int main(int argc, char *argv[]) {
         }
 
         // A cada BATCH_SIZE mensagens printa mensagem
-        // if(i % BATCH_SIZE == 0){
-        //     logInfo("Enviado: %d mensagens", i);
-        // }
-        logInfo("Enviado: %d", msg[0]);
+        if(i % BATCH_SIZE == 0){
+            logInfo("Enviado: %d mensagens", i);
+        }
         i++;
     }
     logInfo("Pacotes enviados: %d", msgLimit);
