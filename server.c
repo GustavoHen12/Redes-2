@@ -164,6 +164,7 @@ int main(int argc, char *argv[]) {
             }
             netInfo->lastMsg = 0;
             netInfo->totalMsgReceived = 0;
+            netInfo->totalMsgSent = 0;
             netInfo->lost = 0;
             netInfo->outOfOrder = 0;
         } else {
@@ -240,6 +241,7 @@ net_info_t *initNetInfo() {
 
     netInfo->lastMsg = 0;
     netInfo->totalMsgReceived = 0;
+    netInfo->totalMsgSent = 0;
     netInfo->lost = 0;
     netInfo->outOfOrder = 0;
     return netInfo;
