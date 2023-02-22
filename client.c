@@ -59,11 +59,12 @@ int main(int argc, char *argv[]) {
 
     // Inicia canhão
     // Envia sequencia de mensagens para servidor de 1 ao SEQUENCE_LIMIT
+    logInfo("Iniciando envio de pacotes...");
     int i = 1;
     while(i < SEQUENCE_LIMIT) {
         char msg[BUFSIZ+1];
         // Estamos enviado um número, que será recebido e convertido no servidor
-        // entretanto, depois de alguns usos, considerando apenas números, ele pode pegar algum
+        // entretanto, depois de alguns usos, considerando apenas números, ele pode pegar algum                 ->NAO ENTENDI MMUITO BEM
         // número que não deveria, portanto adicionamos um caracter qualquer para que ele pegue apenas o número
         sprintf(msg, "%da", i);
 
@@ -79,7 +80,7 @@ int main(int argc, char *argv[]) {
         }
         i++;
     }
-    logInfo("Enviado: %d mensagens", i);
+    logInfo("Pacotes enviados: %d", i);
 
     // Fecha o socket
     logInfo("Processo finalizado, fechando socket");
