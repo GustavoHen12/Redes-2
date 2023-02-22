@@ -149,6 +149,9 @@ int main(int argc, char *argv[]) {
     pollsd.events = POLLIN;
     int pollResult;
 
+    int msg[BUFSIZ];
+    int received = 0;
+
     // Recebe e processa as mensagens dos clientes
     int bytes_received;
     while (1) {
@@ -169,13 +172,23 @@ int main(int argc, char *argv[]) {
             netInfo->outOfOrder = 0;
         } else {
             if(pollsd.revents & POLLIN) {
-                int new = newSequence(socketServer, &clientAdress, &clientAdressLen);
-                
-                processMsg(new, netInfo);
+                int bytes_received;
 
-                if(netInfo->totalMsgReceived % BATCH_SIZE == 0){
-                    printNetworkInfo(netInfo);
+                // Recebe pacote e testa se recebeu corretamente
+                bytes_received = recvfrom(socketServer, msg, BUFSIZ, 0, (struct sockaddr*)&clientAdress, &clientAdressLen);
+                if (bytes_received < 0) {
+                    logError("Falha ao receber a mensagem");
+                    exit(1);
                 }
+                int newSequence = msg[0];
+                received++;                
+
+                logInfo("Recebido pacote # %d. / %d\n", newSequence, received);    
+
+                // processMsg(newSequence, netInfo);
+                // if(netInfo->totalMsgReceived % BATCH_SIZE == 0){
+                //     printNetworkInfo(netInfo);
+                // }
             }
         }
     }
@@ -242,20 +255,10 @@ net_info_t *initNetInfo() {
     return netInfo;
 }
 
-int msg[BUFSIZ];
-int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen) {
-    int bytes_received;
-
-    // Recebe pacote e testa se recebeu corretamente
-    bytes_received = recvfrom(socketServer, msg, BUFSIZ, 0, (struct sockaddr*)clientAdress, clientAdressLen);
-    if (bytes_received < 0) {
-        logError("Falha ao receber a mensagem");
-        exit(1);
-    }
-    int sequence = msg[0];
-    logInfo("Recebido pacote # %d.\n", sequence);    
-    return sequence;
-}
+// int msg[BUFSIZ];
+// int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *clientAdressLen) {
+    
+// }
 
 int processMsg(int new, net_info_t *netInfo) {
     netInfo->totalMsgReceived++;
