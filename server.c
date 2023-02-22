@@ -256,7 +256,7 @@ int processMsg(int new, net_info_t *netInfo) {
         #endif
         // Se a mensagem não for a próxima, houve perda
         // É realizado o cálculo pois pode ser que seja um intevalo de mensagens
-        netInfo->lost += (new - netInfo->lastMsg);
+        netInfo->lost += (new - netInfo->lastMsg -1);
         netInfo->totalMsgSent += (new - netInfo->lastMsg) - 1; //-1 por conta do netInfo->totalMsgSent++ acima
         netInfo->lastMsg = new;
         return ERROR;
