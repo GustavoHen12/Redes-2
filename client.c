@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
         msg[0] = i;
 
         // Envia mensagem criada
-        if (sendto(clientSocket, msg, sizeof(msg), 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) != strlen(msg)+1) {
+        if (sendto(clientSocket, msg, sizeof(msg), 0, (struct sockaddr*)&serverAdress, sizeof(serverAdress)) != sizeof(msg)) {
             logError("Falha ao enviar a mensagem");
             exit(1);
         }
