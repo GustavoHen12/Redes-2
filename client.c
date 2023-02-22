@@ -1,7 +1,7 @@
 /**
  * @file client.c
- * @author Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa(cph19)
- * @brief Cliente do canhão UDP. Envia diversas mensagens sequências para o servidor que irá calcular
+ * @author Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa (cph19)
+ * @brief Cliente do canhão UDP. Envia diversas mensagens em sequência para o servidor que irá calcular
  * a taxa de erro 
  * 
  */
@@ -28,9 +28,14 @@ int initClient (int *sock, struct sockaddr_in *serverAdress, char *serverIp, int
 
 int main(int argc, char *argv[]) {
 
+    fprintf(stdout, "==================================================================================");
+    fprintf(stdout, "Inicio da execucao: programa que inicializa o cliente para execucao do canhao UDP.");
+    fprintf(stdout, "Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa (cph19)- Redes II");
+    fprintf(stdout, "==================================================================================");
+
     // Socket do cliente
     int clientSocket;
-    // Endereço do servido
+    // Endereço do servidor
     struct sockaddr_in serverAdress;
     
     // Informações sobre o server

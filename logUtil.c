@@ -1,3 +1,10 @@
+/**
+ * @file logUtil.c
+ * @author Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa (cph19)
+ * @brief 
+ * 
+ */
+
 #include "logUtil.h"
 
 void logError( const char* format, ... ) {

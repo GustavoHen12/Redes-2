@@ -1,3 +1,10 @@
+/**
+ * @file server.c
+ * @author Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa (cph19)
+ * @brief Servidor do canhão UDP. Recebe diversas mensagens em sequência do cliente para calcular
+ * a taxa de erro 
+ * 
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +45,12 @@ int processMsg(int new, net_info_t *netInfo);
 void printNetworkInfo(net_info_t *netInfo);
 
 int main(int argc, char *argv[]) {
+
+    fprintf(stdout, "==================================================================================");
+    fprintf(stdout, "Inicio da execucao: programa que inicializa o servidor para execucao do canhao UDP");
+    fprintf(stdout, "Gustavo Henrique da Silva Barbosa (ghsb19) e Calebe Pompeo Helpa (cph19)- Redes II");
+    fprintf(stdout, "==================================================================================");
+
     // Informações do cliente
     struct sockaddr_in clientAdress;
     socklen_t clientAdressLen = sizeof(clientAdress);
