@@ -44,10 +44,9 @@
 typedef struct {
     int totalMsgReceived;   // Total de mensagens recebida
     int lastMsg;            // Valor da ultima mensagem
-    //int totalMsgSent;     // Avaliar se faz sentido um campo que calcula o numero de msgs que deveria receber
+    int totalMsgSent;       // Campo que calcula o numero de msgs que deveria receber
                             // (totalMsgSent += (new - netInfo->lastMsg) para o caso de perda de msgs)
-                            // Avaliar se ao final tem o mesmo valor que o client
-
+                            // Ao final tem o mesmo valor que o client
     int lost;               // Total de mesagens perdidas
     int outOfOrder;         // Total de mensagens que chegaram fora de ordem
 } net_info_t;
@@ -268,7 +267,7 @@ int newSequence (int socketServer, struct sockaddr_in *clientAdress, socklen_t *
 
 int processMsg(int new, net_info_t *netInfo) {
     netInfo->totalMsgReceived++;
-    //netInfo->totalMsgSent++;
+    netInfo->totalMsgSent ++;
 
     if(new > (netInfo->lastMsg + 1)){
 
@@ -278,7 +277,7 @@ int processMsg(int new, net_info_t *netInfo) {
         // Se a mensagem não for a próxima, houve perda
         // É realizado o cálculo pois pode ser que seja um intevalo de mensagens
         netInfo->lost += (new - netInfo->lastMsg);
-        //netInfo->totalMsgSent += (new - netInfo->lastMsg) - 1; //-1 por conta do netInfo->totalMsgSent++ acima
+        netInfo->totalMsgSent += (new - netInfo->lastMsg) - 1; //-1 por conta do netInfo->totalMsgSent++ acima
         netInfo->lastMsg = new;
         return ERROR;
     } else if (new < netInfo->lastMsg) {
@@ -288,7 +287,7 @@ int processMsg(int new, net_info_t *netInfo) {
         // Portanto uma das que estava perdida não está mais
         netInfo->lost--;
         netInfo->outOfOrder++;
-        //netInfo->totalMsgSent--; //-1 porque ja tinha sido contada na aparente perda de mensagens
+        netInfo->totalMsgSent--; //-1 porque ja tinha sido contada na aparente perda de mensagens
         return ERROR;
     } 
     
@@ -298,9 +297,8 @@ int processMsg(int new, net_info_t *netInfo) {
 
 void printNetworkInfo(net_info_t *netInfo) {
     double loss_rate, outOfOrder_rate;
-    // loss_rate = 100.0*(double)netInfo->lost/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
-    // outOfOrder_rate = 100.0*(double)netInfo->outOfOrder/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
+    loss_rate = 100.0*(double)netInfo->lost/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
+    outOfOrder_rate = 100.0*(double)netInfo->outOfOrder/(double)netInfo->totalMsgReceived; // Ou netInfo->totalMsgSent?
     
-    logInfo("Status:\n\tTotal de pacotes recebidos: %d [última = %d]\n\tTotal de perda de pacotes: %d []\n\tTotal de pacotes fora de ordem: %d []", netInfo->totalMsgReceived, netInfo->lastMsg, netInfo->lost, netInfo->outOfOrder);
-    logInfo("\tTaxa de perda de pacotes: %lf%%\n\tTaxa de pacotes recebidos fora de ordem: %lf%%", loss_rate, outOfOrder_rate);
+    logInfo("Status:\n\tTotal de pacotes recebidos: %d [última = %d]\n\tTotal de perda de pacotes: %d\n\tTotal de pacotes fora de ordem: %d\n\tTaxa de perda de pacotes: %lf%%\n\tTaxa de pacotes recebidos fora de ordem: %lf%%", netInfo->totalMsgReceived, netInfo->lastMsg, netInfo->lost, netInfo->outOfOrder, loss_rate, outOfOrder_rate);
 }
