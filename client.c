@@ -85,7 +85,6 @@ int main(int argc, char *argv[]) {
     logInfo("Iniciando envio de pacotes...");
     int i = 1;
     int msg[1];
-
     while(i <= msgLimit) {
         // Cria mensagem
         msg[0] = i;
@@ -97,9 +96,10 @@ int main(int argc, char *argv[]) {
         }
 
         // A cada BATCH_SIZE mensagens printa mensagem
-        if(i % BATCH_SIZE == 0){
-            logInfo("Enviado: %d mensagens", i);
-        }
+        // if(i % BATCH_SIZE == 0){
+        //     logInfo("Enviado: %d mensagens", i);
+        // }
+        logInfo("Enviado: %d", msg[0]);
         i++;
     }
     logInfo("Pacotes enviados: %d", msgLimit);
