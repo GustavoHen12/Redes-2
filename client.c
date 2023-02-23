@@ -24,7 +24,6 @@
 #define ERROR -1
 #define SUCESS 1
 
-// #define SEQUENCE_LIMIT 2147483647
 #define SEQUENCE_LIMIT 3000
 #define BATCH_SIZE 100
 

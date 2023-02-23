@@ -19,7 +19,7 @@
     <BR>
     Bacharelado em Ciência da Computação 
     <BR>
-    Alunos: Gustavo Henrique da Silva Barbosa e Calebe Pompeo Helpa</B>
+    Alunos: Calebe Pompeo Helpa e Gustavo Henrique da Silva Barbosa</B>
     </DIV>
     
     <P>
@@ -30,8 +30,8 @@
     <DIV ALIGN="CENTER"><FONT SIZE="3"><B>O Canhão UDP</em></B></FONT></DIV>
     
     <DIV ALIGN="CENTER">
-        <p> Trabalho desenvolvido em dupla pelos alunos Gustavo Henrique da Silva Barbosa (ghsb19)
-            e Calebe Pompeo Helpa (cph19), em linguagem C.</p>
+        <p> Trabalho desenvolvido em dupla pelos alunos Calebe Pompeo Helpa (cph19) e 
+            Gustavo Henrique da Silva Barbosa (ghsb19), em linguagem C.</p>
     </DIV>
     <p><h4>Estrutura</h4>
         Este trabalho consiste em um sistema cliente-servidor que irá operar sobre o protocolo UDP.
@@ -53,13 +53,23 @@
     </p>
     <h4>Cliente</h4>
     <p>
-        O cliente é a parte mais simples do sistema, pois sua função é apenas enviar uma sequência de mensagens.
+        O cliente é a parte mais simples do sistema, ele é o nosso "canhão UDP" própriamente dito, portanto sua função é
+        apenas enviar uma sequência de pacotes UDP para o servidor.
         <p></p>
-        Na prática, a primeira coisa que o processo do cliente irá fazer será inicializar suas estruturas de dados, portanto ele irá criar um socket para a conexão e iniciar uma struct sockaddr_in com as informações do endereço do servidor. É importante ressaltar que as informações do servidor, como o seu endereço ip e a porta que deve ser conectada, devem ser passadas para o programa como parâmetros na sua chamada.
+        Na prática, a primeira coisa que o processo do cliente irá fazer será inicializar suas estruturas de dados.
+        Ele irá criar um socket para a conexão e iniciar uma struct sockaddr_in com as informações do endereço
+        do servidor. É importante ressaltar que as informações do servidor, como o seu endereço ip e a porta que deve ser
+        conectada, devem ser passadas para o programa como parâmetros na sua chamada.
         <p></p>
-        Após isso, o processo já tem todas as informações necessárias para começar a enviar mensagens. Ao executar o cliente, um dos parâmetros que devem ser passados é a quantidade de mensagens que devem ser enviadas (foi pensado assim para facilitar a execução dos testes). Portanto, considerando que se deseja enviar N mensagens, o cliente envia sequencialmente essas N mensagens, sendo que o conteúdo de cada uma é sua ordem, ou seja, a 1° possui como conteúdo o número 1, a 2° o número 2, e assim por diante.
+        Após isso, o processo já tem todas as informações necessárias para começar a enviar mensagens. Ao executar o
+        cliente, um dos parâmetros que devem ser passados é a quantidade de mensagens que devem ser enviadas (foi pensado
+        assim para facilitar a execução dos testes). Portanto, considerando que se deseja enviar N mensagens, o cliente
+        envia sequencialmente essas N mensagens, sendo que o conteúdo de cada uma é o seu número de sequência, ou seja, a
+        1° possui como conteúdo o número 1, a 2° o número 2, e assim sucessivamente.
         <p></p>
-        Para facilitar os testes do sistema, é impresso no log do cliente, além das informações com relação a configuração das estruturas,  apenas uma mensagem a cada 100, informando a quantidade total enviada até aquele momento. Ao final, é exibido a quantidade total de pacotes enviados.
+        Para facilitar os testes do sistema, é impresso no log do cliente, além das informações com relação a configuração
+        das estruturas,  apenas uma mensagem a cada 100, informando a quantidade total enviada até aquele momento. Ao final,
+        é exibido a quantidade total de pacotes enviados.
         
     </p>
     <h4>Servidor</h4>
@@ -128,16 +138,25 @@
     </DIV>
     <p></p>
     <h4>Resultados</h4>
-    <p></p>
-    <img src="./graficos/Para 10000.png"/>
-
+    <p>Abaixo podemos ver a média das taxas dos resultados obtidos por meio dos logs do sistema. Os testes foram realizados
+        no laboratório 3 do Departamento de Informática da UFPR no dia 22 de fevereiro de 2023.
+        <p></p>
+        A rede apresentou uma taxa relativamente baixa de perda de pacotes e em todos os testes realizados não apresentou
+        nenhuma vez a entrega de pacotes fora de ordem. A melhor explicação que pudemos encontrar para isso foi que a perda
+        dos pacotes se dá no gerenciamento dos buffers, de modo que todos os pacotes mantém sua ordem porém alguns são perdidos
+        por conta da falta de espaço para serem armazenados.
+    </p>
+    <DIV ALIGN="CENTER">
+        <img src="./graficos/taxas_de_perda.jpeg"  width="700" height="500"/>
+    </DIV>
     <h3>Código fonte</h3>
     <p>
         Seguem abaixo os links para acesso aos códigos implementados para o trabalho. Juntamente com os arquivos do
         cliente e do servidor também se encontram o arquivo Makefile, que pode ser utilizado para compliar os
         programas, e os aquivos logUtils.c e logUtils.h, utilizados para a implemetação dos logs do sistema. Para
         fins de desempenho alguns logs de controle gerados pelas aplicações foram suprimidos, porém é possível ativá-los
-        utilizando a flag DEBUG no processo de compilação.
+        utilizando a flag DEBUG no processo de compilação. Para o envio e recebimento de mensagens foram utilizadas as
+        bibliotecas sys/types.h e sys/socket.h
     </p>
     <DIV ALIGN="CENTER">
         <a HREF="./client.c.txt">client.c</A>
@@ -154,6 +173,30 @@
         &nbsp
         <a HREF="./makefile.txt">Makefile</A>
     </DIV>
+    <h3>Modo de utilização</h3>
+    <p>
+        Para utilizar o Canhão UDP é necessário que os arquivos sejam baixados em dois computadores diferentes, ambos
+        com o sistema opercaional Linux, que estejam conectados na mesma rede. Se o experimento for realizado apenas um
+        computador as análises geradas não refletirão a realidade da rede, pois em um mesmo computador os dados não
+        chegarão nem à placa de rede para os processos comunicarem entre si.
+        <p></p>  
+        Sendo satisfeitos os critérios acima, tendo baixado todos os arquivos acima e estando todos na mesma pasta, siga
+        essa sequência de passos para testar o "Canhão UDP" na sua rede.
+        <p></p>
+        $ make
+        <p></p>
+        Primeiramente o servidor deve ser executado:
+        <p></p>
+        $ ./server {número da porta ou nada para ser utilizada a porta default (8005)}
+        <p></p>
+        Então o cliente pode ser executado (para o cliente todos os campos são obrigatórios):
+        <p></p>
+        $ ./client {número ip da máquina rodando o servidor} {porta que será utilizada} {número de pacotes que serão
+        enviados}
+        <p></p>
+        Se tudo ocorrer como o esperado, em stdout da máquina que está rodando o servidor devem aparecer os resultados
+        das análises.
+    </p>
     <p></p>
 
     <br>
