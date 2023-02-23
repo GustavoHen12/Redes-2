@@ -53,7 +53,14 @@
     </p>
     <h4>Cliente</h4>
     <p>
-    
+        O cliente é a parte mais simples do sistema, pois sua função é apenas enviar uma sequência de mensagens.
+        <p></p>
+        Na prática, a primeira coisa que o processo do cliente irá fazer será inicializar suas estruturas de dados, portanto ele irá criar um socket para a conexão e iniciar uma struct sockaddr_in com as informações do endereço do servidor. É importante ressaltar que as informações do servidor, como o seu endereço ip e a porta que deve ser conectada, devem ser passadas para o programa como parâmetros na sua chamada.
+        <p></p>
+        Após isso, o processo já tem todas as informações necessárias para começar a enviar mensagens. Ao executar o cliente, um dos parâmetros que devem ser passados é a quantidade de mensagens que devem ser enviadas (foi pensado assim para facilitar a execução dos testes). Portanto, considerando que se deseja enviar N mensagens, o cliente envia sequencialmente essas N mensagens, sendo que o conteúdo de cada uma é sua ordem, ou seja, a 1° possui como conteúdo o número 1, a 2° o número 2, e assim por diante.
+        <p></p>
+        Para facilitar os testes do sistema, é impresso no log do cliente, além das informações com relação a configuração das estruturas,  apenas uma mensagem a cada 100, informando a quantidade total enviada até aquele momento. Ao final, é exibido a quantidade total de pacotes enviados.
+        
     </p>
     <h4>Servidor</h4>
     <p>
@@ -96,14 +103,14 @@
         estabelecidos são atingidos.
     </p>
     <p></p>
-    <h4>Resultados obtidos</h4>
+    <h3>Resultados obtidos</h3>
     <p>
         
     </p>
     <p></p>
     <h4>Logs de execução</h4>
     <p>
-        Os logs a seguir foram gerados por meio da execução de dez envios de pacotes concecutivos pelo cliente. Abaixo
+        Os logs do server a seguir foram gerados por meio da execução de dez envios de pacotes concecutivos pelo cliente. Abaixo
         podem ser analizados os resultados obtidos para o envio de 1.000, 10.000, 100.000 e 1.000.000 pacotes por meio
         do "canhão UDP".
     </p>
@@ -120,7 +127,11 @@
         <a HREF="./teste_1000000.txt">1.000.000 pacotes</A>
     </DIV>
     <p></p>
-    <h4>Código fonte</h4>
+    <h4>Resultados</h4>
+    <p></p>
+    <img src="./graficos/Para 10000.png"/>
+
+    <h3>Código fonte</h3>
     <p>
         Seguem abaixo os links para acesso aos códigos implementados para o trabalho. Juntamente com os arquivos do
         cliente e do servidor também se encontram o arquivo Makefile, que pode ser utilizado para compliar os
