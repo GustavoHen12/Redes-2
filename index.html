@@ -29,34 +29,121 @@
     <P>
     <DIV ALIGN="CENTER"><FONT SIZE="3"><B>O Canhão UDP</em></B></FONT></DIV>
     
-    <p> Trabalho desenvolvido em dupla pelos alunos Gustavo Henrique da Silva Barbosa (ghsb19)
-    e Calebe Pompeo Helpa (cph19), em linguagem C, com o objetivo de analisar a existência de perda de pacotes
-    UDP/IP na rede, qual é essa taxa aproximadamente e se as mensagens são recebidas fora de ordem.</p>
-    
-    <h4>Estrutura </h4>
-    <OL>
-    <LI> Como foi feito o trabalho;
+    <DIV ALIGN="CENTER">
+        <p> Trabalho desenvolvido em dupla pelos alunos Gustavo Henrique da Silva Barbosa (ghsb19)
+            e Calebe Pompeo Helpa (cph19), em linguagem C.</p>
+    </DIV>
+    <p><h4>Estrutura</h4>
+        Este trabalho consiste em um sistema cliente-servidor que irá operar sobre o protocolo UDP.
+        O cliente irá enviar uma grande quantidade de pacotes para o servidor (fazendo o papel de "canhão"
+        de dados), ao passo que o servidor irá receber os pacotes e processá-los para determinar se houve perda durante
+        a transmissão.
+    </p>
+    <p>O objetivo deste trabalho é analisar o desempenho do protocolo UDP por meio dos seguintes parâmetros: 
         <ol>
-        <li> Estrutura do trabalho;</li>
-        <LI> Implementação do client;</LI>
-        <a HREF="./client.c.txt">client.c</A> 
-        <a HREF="./server.c.txt">server.c</A> 
-        <a HREF="./logUtil.c.txt">logUtil.c</A> 
-        <a HREF="./logUtil.h.txt">logUtil.h</A> 
-        <li> Implementação do server;</li>
+            <li> Existência de perda de pacotes durante a transmissão;</li>
+            <li> Taxa de perda representada pela razão entre a quantidade de mensagens recebidas e a
+                quantidade de mensagens enviadas;</li>
+            <li>Existência de mensagens que são recebidas fora de ordem;</li>
+            <li>Taxa de mensagens que são recebidas fora de ordem representada pela razão entre a quantidade
+                de mensagens recebidas fora de ordem e a quantidade de mensagens enviadas.</li>
         </ol>
-    </LI>
+        A seguir iremos explorar a implementação do cliente, do servidor e quais foram as estratégias utilizadas
+        para alcançar esses objetivos.
+    </p>
+    <h4>Cliente</h4>
+    <p>
+    
+    </p>
+    <h4>Servidor</h4>
+    <p>
+        O servidor irá receber os pacotes enviados pelo cliente e irá processá-los para realizar a análise da rede 
+        proposta como objetivo desse trabalho, portanto ele deve ser inicializado antes do cliente para estar pronto
+        para a chegada das mensagens. Ao ser executado ele primeiramente irá inicializar a estrutura de dados que será
+        utilizada para armazenar as informações sobre a análise e então irá temtar obter seu próprio endereço IP, abrir
+        um socket e solicitar ao sistema operacional o uso da porta especificada através da linha de comando, caso
+        nenhuma porta seja especificada ele irá solicitar a porta 8005 estabelecida como default. Caso seja bem sucedido
+        em sua inicialização, ele irá entrar em um laço infinito para receber os pacotes enviados pelo cliente.
+        <p></p>
+        Durante a execução do laço infinito o servidor recebe as mensagens enviadas pelo cliente e, caso não apresente
+        falha ao receber, processa e armazena as informações relacionadas ao pacote. Durante esse processamento é
+        identificado o número de sequência da mensagem, os valores totais de mensagens enviadas e mensagens recebidas
+        são incrementados, e então o número de sequência do pacote é analizado para identificar se é o número esperado,
+        se é um número maior que o esperado (indicando a possível perda de pacotes), ou se é um número menor do que o
+        esperado (indicando que um dos pacotes estabelecidos como perdidos anteriormente foi encontrado). Por meio da
+        avaliação desses três casos é possível não apenas identificar o número total de pacotes recebidos, mas também
+        o número de pacotes enviados pelo cliente, através da contagem de quantos pacotes deveriam ter sido recebidos
+        pelo servidor com base no número de sequência.
+        <p></p>
+        Durante a execução do laço principal o servidor também estabelece um controle de tempo para identificar timeout
+        caso o cliente pare de enviar mensagens. Ao identificar timeout o servidor imprime na tela os dados processados
+        até aquele instante e reinicia suas variáveis de controle dos dados da rede. Os dados impressos na tela são:
+        <ol>
+            <li>Número total de pacotes recebidos e número total de pacotes enviados;</li>
+            <li>Número de sequência da última mensagem recebida;</li>
+            <li>Número total de pacotes perdidos;</li>
+            <li>Número total de pacotes fora de ordem;</li>
+            <li>Porcentagem de pacotes perdidos em relação ao número de pacotes enviados;</li>
+            <li>Porcentagem de pacotes recebidos fora de ordem em relação ao número de pacotes enviados;</li>
+        </ol>
+        Enquanto os números totais são incrementados durante a execução e processamento das mensagens, as taxas dos
+        pacotes perdidos e recebidos fora de ordem são definidas apenas no momento em que serão impressas na tela. Por
+        conta disso, se os últimos pacotes (enviados antes do cliente encerrar sua execução) forem perdidos, o servidor
+        não será capaz de identificar o número de pacotes que foram perdidos no final e portanto essas taxas serão um
+        pouco menores que o valor real. 
+        <p></p>
+        Por meio desses dados é possível realizar a análise de desempenho da rede proposta e, portanto, os objetivos
+        estabelecidos são atingidos.
+    </p>
     <p></p>
-    <LI>Resultado obtidos;</LI>
+    <h4>Resultados obtidos</h4>
+    <p>
+        
+    </p>
     <p></p>
-    <li> Código fonte bem comentado que deve ser aberto no browser por meio de um .txt;</li>
+    <h4>Logs de execução</h4>
+    <p>
+        Os logs a seguir foram gerados por meio da execução de dez envios de pacotes concecutivos pelo cliente. Abaixo
+        podem ser analizados os resultados obtidos para o envio de 1.000, 10.000, 100.000 e 1.000.000 pacotes por meio
+        do "canhão UDP".
+    </p>
+    <DIV ALIGN="CENTER">
+        <a HREF="./teste_1000.txt">1.000 pacotes</A>
+        &nbsp
+        &nbsp
+        <a HREF="./teste_10000.txt">10.000 pacotes</A>
+        &nbsp
+        &nbsp
+        <a HREF="./teste_100000.txt">100.000 pacotes</A>
+        &nbsp
+        &nbsp
+        <a HREF="./teste_1000000.txt">1.000.000 pacotes</A>
+    </DIV>
     <p></p>
-    <li> Logs de execução dos processos que demonstram o funcionamento correto do sistema.</li>
-
-    <CENTER>
-    <p>O OBJETIVO É ENTENDER COMO O TRABALHO FUNCIONA</p>
-    </CENTER>
-    </OL>
+    <h4>Código fonte</h4>
+    <p>
+        Seguem abaixo os links para acesso aos códigos implementados para o trabalho. Juntamente com os arquivos do
+        cliente e do servidor também se encontram o arquivo Makefile, que pode ser utilizado para compliar os
+        programas, e os aquivos logUtils.c e logUtils.h, utilizados para a implemetação dos logs do sistema. Para
+        fins de desempenho alguns logs de controle gerados pelas aplicações foram suprimidos, porém é possível ativá-los
+        utilizando a flag DEBUG no processo de compilação.
+    </p>
+    <DIV ALIGN="CENTER">
+        <a HREF="./client.c.txt">client.c</A>
+        &nbsp
+        &nbsp
+        <a HREF="./server.c.txt">server.c</A>
+        &nbsp
+        &nbsp
+        <a HREF="./logUtil.c.txt">logUtil.c</A>
+        &nbsp
+        &nbsp
+        <a HREF="./logUtil.h.txt">logUtil.h</A>
+        &nbsp
+        &nbsp
+        <a HREF="./makefile.txt">Makefile</A>
+    </DIV>
+    <p></p>
 
     <br>
     <br>
